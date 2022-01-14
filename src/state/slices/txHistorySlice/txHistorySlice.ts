@@ -123,6 +123,30 @@ export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 
+export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
+
+const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
+
+export const selectTxsByAccountIds = createSelector(
+  selectTxs,
+  selectTxIdsByAccountId,
+  selectAccountIdsParam,
+  (txsById, txsByAccountId, accountIds): Tx[] => {
+    if (!accountIds?.length) {
+      return values(selectTxs)
+    } else {
+      return Object.entries(txsByAccountId)
+        .reduce<TxId[]>((acc, [accountId, txIds]) => {
+          if (accountIds.includes(accountId)) acc.push(...txIds)
+          return acc
+        }, [])
+        .map(txId => txsById[txId])
+    }
+  },
+  // deep equality check on output as we're mapping
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
 export const selectLastNTxIds = createSelector(
   // ids will always change
   selectTxIds,
@@ -150,6 +174,9 @@ export const selectTxIdsByAssetId = createSelector(
   selectAssetIdParam,
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )
+
+// TODO(0xdef1cafe): write this
+// export const selectTxIdsByAccountIds = createSelector()
 
 // TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
 // and only specific to bitcoin
