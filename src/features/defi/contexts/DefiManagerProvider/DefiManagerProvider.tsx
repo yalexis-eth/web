@@ -1,11 +1,13 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { FoxyManager } from 'features/defi/providers/foxy/components/FoxyManager/FoxyManager'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
+import { FoxyProvider } from '../FoxyProvider/FoxyProvider'
 
 export enum DefiType {
   Pool = 'pool',
@@ -16,7 +18,8 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  Yearn = 'yearn'
+  Yearn = 'yearn',
+  Foxy = 'foxy'
 }
 
 export enum DefiAction {
@@ -50,7 +53,8 @@ type DefiManagerContextProps = {
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 const DefiModules = {
-  [DefiProvider.Yearn]: YearnManager
+  [DefiProvider.Yearn]: YearnManager,
+  [DefiProvider.Foxy]: FoxyManager
 }
 
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
@@ -60,17 +64,19 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   return (
     <DefiManagerContext.Provider value={null}>
       <YearnProvider>
-        {children}
-        {background && (
-          <Route
-            path='/defi/:earnType/:provider'
-            render={({ match: { params } }) => {
-              const { provider } = params
-              const Module = DefiModules[provider as DefiProvider]
-              return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
-            }}
-          />
-        )}
+        <FoxyProvider>
+          {children}
+          {background && (
+            <Route
+              path='/defi/:earnType/:provider'
+              render={({ match: { params } }) => {
+                const { provider } = params
+                const Module = DefiModules[provider as DefiProvider]
+                return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
+              }}
+            />
+          )}
+        </FoxyProvider>
       </YearnProvider>
     </DefiManagerContext.Provider>
   )
