@@ -63,7 +63,7 @@ export const Overview = ({ assetId }: StakedProps) => {
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
           <Button width='100%' colorScheme='green'>
-            <Text translation={'defi.claim'} color='green' fontWeight='bold' />
+            <Text translation={'defi.claim'} fontWeight='bold' />
           </Button>
         </Flex>
       </Box>
