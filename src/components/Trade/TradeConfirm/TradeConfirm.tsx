@@ -1,10 +1,14 @@
-import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { TxStatus } from '@shapeshiftoss/types/dist/chain-adapters'
+import { head, isNil } from 'lodash'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -13,10 +17,16 @@ import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
+import {
+  selectLastTxStatusByAssetId,
+  selectTxHistoryStatus,
+  selectTxIds,
+  selectTxs
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
@@ -56,7 +66,24 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
   const caip = caip19.toCAIP19({ chain, network, ...extra })
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
+  const [status, setStatus] = useState<TxStatus>(TxStatus.Unknown)
+  const txIds = useSelector(selectTxIds)
+  const txsById = useSelector(selectTxs)
+  const previousTxIds = usePrevious(txIds)
+
+  useEffect(() => {
+    const txId = head(txIds)!
+    const prevTxIdsHead = head(previousTxIds) || ''
+    const prevTxHead = txsById[prevTxIdsHead]
+    // grab the actual tx
+    const tx = txsById[txId]
+    if (!previousTxIds?.length || txIds.length === previousTxIds.length) {
+      return
+    }
+    if (prevTxHead && tx.status === prevTxHead.status) return
+    setStatus(tx.status)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txIds])
 
   // Parametrized errors cannot simply be matched with === since their param(s) might vary
   const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
