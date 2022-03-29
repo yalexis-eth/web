@@ -31,6 +31,8 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
+import { skipCosmosTx } from './skipCosmosTx'
+
 type PriceAtBlockTimeArgs = {
   date: number
   assetPriceHistoryData: HistoryData[]
@@ -232,6 +234,9 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         }
       }
 
+      // Special cases where we should not include cosmos delegate/undelegate txs in chart balance
+      const skipBucketBalanceChange = skipCosmosTx(tx)
+
       tx.transfers.forEach(transfer => {
         const asset = transfer.caip19
 
@@ -243,11 +248,13 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         switch (transfer.type) {
           case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
+            if (!skipBucketBalanceChange)
+              bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
           case chainAdapters.TxType.Receive:
             // we're going backwards, so a receive means we had less before
-            bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
+            if (!skipBucketBalanceChange)
+              bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
           default: {
             console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
