@@ -42,4 +42,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
+console.info('env', env)
 export const getConfig = () => cleanEnv(env, validators, { reporter })

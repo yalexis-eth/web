@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
-import localforage from 'localforage'
+// import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistReducer, persistStore } from 'redux-persist'
+import { PERSIST } from 'redux-persist'
 import { registerSelectors } from 'reselect-tools'
 
 import { logging } from './middleware/logging'
@@ -12,11 +12,11 @@ import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
-const persistConfig = {
-  key: 'root',
-  whitelist: [''],
-  storage: localforage
-}
+// const persistConfig = {
+//   key: 'root',
+//   whitelist: [''],
+//   storage: localforage
+// }
 
 registerSelectors(selectors)
 
@@ -28,7 +28,7 @@ const apiMiddleware = [
   logging
 ]
 
-const persistedReducer = persistReducer(persistConfig, reducer)
+// const persistedReducer = persistReducer(persistConfig, reducer)
 
 export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(slices.assets.actions.clear())
@@ -46,7 +46,7 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
 /// This allows us to create an empty store for tests
 export const createStore = () =>
   configureStore({
-    reducer: persistedReducer,
+    reducer,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         immutableCheck: {
@@ -62,7 +62,7 @@ export const createStore = () =>
   })
 
 export const store = createStore()
-export const persistor = persistStore(store)
+// export const persistor = persistStore(store)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 
