@@ -7,21 +7,26 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
-export const selectAssetByCAIP19 = createSelector(
+export const selectAssets = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
-  (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19] || undefined,
+  byId => byId,
+)
+
+export const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
+selectAssetIdParam.selectorName = 'selectAssetIdParam'
+
+export const selectAssetByCAIP19 = createSelector(
+  selectAssets,
+  selectAssetIdParam,
+  (byId, assetId) => byId[assetId] || undefined,
 )
 
 export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
   asset ? asset.name : undefined,
 )
 
-export const selectAssets = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.assets.byId,
-  byId => byId,
-)
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
+selectAssetIds.selectorName = 'selectAssetIds'
 
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,
@@ -73,7 +78,7 @@ export const selectFeeAssetByChainId = createSelector(
 
 export const selectFeeAssetById = createSelector(
   selectAssets,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
+  selectAssetIdParam,
   (assetsById, assetId): Asset => {
     const { chain, network } = caip19.fromCAIP19(assetId)
     const feeAssetId = caip19.toCAIP19({
