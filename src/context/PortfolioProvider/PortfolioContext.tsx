@@ -87,6 +87,12 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       dispatch(
         portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
       )
+
+      const walletSupportCosmos = true
+      if (walletSupportCosmos) {
+        portfolioApi.endpoints.getDefaultValidator.initiate()
+        // dispatch(stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId: cosmosChainId }))
+      }
     })
   }, [dispatch, accountSpecifiersList])
 

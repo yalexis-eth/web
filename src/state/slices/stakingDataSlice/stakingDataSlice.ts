@@ -26,15 +26,29 @@ export type Validators = {
   validators: chainAdapters.cosmos.Validator[]
 }
 
+export const selectValidatorLoadingStatus = (chainId: CAIP2): StakingDataStatus => {
+  const data: Record<string, unknown> = stakingDataApi.endpoints.getAllValidatorsData.select({
+    chainId,
+  })
+  return isEmpty(data) ? 'loading' : 'loaded'
+}
+
 export type StakingDataByAccountSpecifier = {
   [k: string]: Staking
 }
 
 export type StakingData = {
-  byAccountSpecifier: StakingDataByAccountSpecifier
-  status: StakingDataStatus
-  validatorStatus: StakingDataStatus
+  // byAccountSpecifier: StakingDataByAccountSpecifier // this join is now on the portfolio side
   byValidator: ValidatorDataByPubKey
+  validatorIds: PubKey[]
+}
+
+type SelectValidatorIdsByAccountId = (accountId: string) => ValidatorId[]
+
+if (!portfolioValidatorIds.length) {
+  return <ShapeShiftValidator />
+} else {
+  validatorsIds.map(id => <Validator id={id} /)
 }
 
 export type ValidatorDataByPubKey = {
@@ -79,12 +93,6 @@ export const stakingData = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setStatus: (state, { payload }: StakingDataStatusPayload) => {
-      state.status = payload
-    },
-    setValidatorStatus: (state, { payload }: StakingDataStatusPayload) => {
-      state.validatorStatus = payload
-    },
     upsertStakingData: (
       stakingDataState,
       { payload }: { payload: { accountSpecifier: CAIP10; stakingData: Staking } },
@@ -166,7 +174,6 @@ export const stakingDataApi = createApi({
         const adapter = (await chainAdapters.byChainId(
           chainId,
         )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
-        dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {
           const data = await adapter.getValidators()
           dispatch(
@@ -187,40 +194,8 @@ export const stakingDataApi = createApi({
               status: 500,
             },
           }
-        } finally {
-          dispatch(stakingData.actions.setValidatorStatus('loaded'))
         }
       },
-    }),
-    getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ chainId, validatorAddress }, { dispatch }) => {
-        const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
-          chainId,
-        )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
-        dispatch(stakingData.actions.setValidatorStatus('loading'))
-        try {
-          const data = await adapter.getValidator(validatorAddress)
-          dispatch(
-            stakingData.actions.upsertValidatorData({
-              validators: [data],
-            }),
-          )
-          return {
-            data: data,
-          }
-        } catch (e) {
-          console.error('Error fetching single validator data', e)
-          return {
-            error: {
-              data: `Error fetching staking data`,
-              status: 500,
-            },
-          }
-        } finally {
-          dispatch(stakingData.actions.setValidatorStatus('loaded'))
-        }
-      },
-    }),
+    })
   }),
 })

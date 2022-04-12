@@ -1,6 +1,8 @@
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
+import { StakingDataByAccountSpecifier } from '../stakingDataSlice/stakingDataSlice'
+
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters
 export const supportedAccountTypes = {
   [ChainTypes.Bitcoin]: [
@@ -33,10 +35,15 @@ export const supportedAccountTypes = {
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type AccountSpecifier = string
 
+export type StakingData = {}
+
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
-    [k: AccountSpecifier]: CAIP19[]
+    [k: AccountSpecifier]: {
+      assetIds: CAIP19[]
+      byAccountSpecifier: StakingDataByAccountSpecifier
+    }
   }
   // a list of accounts in this portfolio
   ids: AccountSpecifier[]
