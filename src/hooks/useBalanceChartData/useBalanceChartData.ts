@@ -273,6 +273,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
         }
+        if (transfer.caip19.includes('0xc02a')) debugger
       })
     })
 
@@ -418,7 +419,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // put each tx into a bucket for the chart
     const buckets = bucketEvents(txs, rebases, emptyBuckets)
 
-    console.info('first bucket', buckets[0])
+    console.info(
+      'first bucket',
+      buckets[0].balance.crypto[
+        'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+      ].toNumber(),
+    )
     console.info(
       'weth txs',
       buckets.filter(b => {
