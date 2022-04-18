@@ -418,6 +418,17 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // put each tx into a bucket for the chart
     const buckets = bucketEvents(txs, rebases, emptyBuckets)
 
+    console.info('first bucket', buckets[0])
+    console.info(
+      'weth txs',
+      buckets.filter(b => {
+        return b.txs.some(tx =>
+          tx.transfers.some(t => {
+            return t.caip19.includes('0xc02a')
+          }),
+        )
+      }),
+    )
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
