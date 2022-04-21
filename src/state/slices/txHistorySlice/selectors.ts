@@ -10,7 +10,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
-export const selectTxs$ = (state: ReduxState) => state.txHistory.txs.byId
+export const selectTxs = (state: ReduxState) => state.txHistory.txs.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.txs.ids
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
@@ -19,12 +19,12 @@ const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[
 const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
 
 export const selectTxsByAccountIds = createSelector(
-  selectTxs$,
+  selectTxs,
   selectTxIdsByAccountId,
   selectAccountIdsParam,
   (txsById, txsByAccountId, accountIds): Tx[] => {
     if (!accountIds?.length) {
-      return values(selectTxs$)
+      return values(selectTxs)
     } else {
       return Object.entries(txsByAccountId)
         .reduce<TxId[]>((acc, [accountId, txIds]) => {
@@ -57,14 +57,14 @@ export const selectTxIdParam = (_state: ReduxState, txId: string) => txId
 selectTxIdParam.selectorName = 'selectTxIdParam'
 
 export const selectTxById = createSelector(
-  selectTxs$,
+  selectTxs,
   selectTxIdParam,
   (txsById, txId) => txsById[txId],
 )
 
 export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxIdsParam,
-  selectTxs$,
+  selectTxs,
   (txIds: TxId[], txs) =>
     txIds
       .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
@@ -94,7 +94,7 @@ const selectMatchingAssetsParamFromFilter = (
 ) => matchingAssets
 
 export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
-  selectTxs$,
+  selectTxs,
   selectTxIds,
   selectMatchingAssetsParamFromFilter,
   selectDateParamFromFilter,
@@ -170,7 +170,7 @@ export const selectTxIdsByFilter = createSelector(
   { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
-export const selectTxsByFilter = createSelector(selectTxs$, selectTxIdsByFilter, (txs, txIds) =>
+export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
   txIds.map(txId => txs[txId]),
 )
 
@@ -180,7 +180,7 @@ export const selectTxsByFilter = createSelector(selectTxs$, selectTxIdsByFilter,
 // for the first time
 export const selectLastTxStatusByAssetId = createSelector(
   selectTxIdsByAssetId,
-  selectTxs$,
+  selectTxs,
   (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status,
 )
 

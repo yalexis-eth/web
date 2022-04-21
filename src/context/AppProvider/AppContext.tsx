@@ -35,7 +35,7 @@ import {
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
-  selectTxs$,
+  selectTxs,
 } from 'state/slices/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -199,7 +199,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
 
   const txIds = useSelector(selectTxIds)
-  const txsById = useSelector(selectTxs$)
+  const txsById = useSelector(selectTxs)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   /**
