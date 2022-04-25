@@ -12,22 +12,20 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import * as bip39 from 'bip39'
+import axios from 'axios'
+import { getConfig } from 'config'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
 import { LoginError } from '../types'
 
 // @TODO(NeOMakinG): Remove this and add the 2fa code logic
 const twoFactorAuthCode = ''
-
-// @TODO(NeOMakinG): Change this with the mnemonic of the legacy account
-const DUMMY_MNEMONIC =
-  'yawning yodellers yielded yearningly yet yodeling yeti yelped yearningly yet youths yawned'
 
 export const LegacyLogin = () => {
   const history = useHistory()
@@ -47,19 +45,30 @@ export const LegacyLogin = () => {
 
   const isLoginError = (err: any): err is LoginError => err && typeof err.message === 'string'
 
+  type LoginResponse = {
+    success: boolean
+    data: string
+    error: any
+  }
+
+  const MIGRATE_URL = getConfig().REACT_APP_WALLET_MIGRATION_URL
+
   const onSubmit = async (values: FieldValues) => {
     try {
-      // @TODO: Replace this with API call when backend is ready
-      const { mnemonic } = await Promise.resolve({ mnemonic: DUMMY_MNEMONIC })
-
-      if (!bip39.validateMnemonic(mnemonic)) {
-        // @TODO: Should we send an error to the user?
-      }
-
-      // TODO: use response to create wallet vault.
+      const hashedPassword = await getPasswordHash(values.email, values.password)
+      const { data: response } = await axios.post<LoginResponse>(`${MIGRATE_URL}`, {
+        email: values.email,
+        password: hashedPassword,
+        twoFactorCode: values.twoFactorCode || undefined,
+      })
+      const { data } = response
+      const encryptedWallet = data
       const vault = await Vault.create(undefined, false)
       vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', mnemonic)
+      vault.set(
+        '#mnemonic',
+        await decryptNativeWallet(values.email, values.password, encryptedWallet),
+      )
       history.push('/native/legacy/login/success', { vault })
     } catch (err) {
       if (isLoginError(err) && err.message === '2fa required') {
