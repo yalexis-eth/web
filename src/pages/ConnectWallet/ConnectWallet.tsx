@@ -6,6 +6,7 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import { getConfig } from 'config'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
@@ -103,7 +104,7 @@ export const ConnectWallet = () => {
           <Flex width='full' alignItems='center' justifyContent='center'>
             <Text color='white' fontWeight='bold' translation='connectWalletPage.shapeshift' />
             <Badge colorScheme='blue' ml={2}>
-              {translate('connectWalletPage.alpha')}
+              {getConfig().REACT_APP_VERSION}
             </Badge>
           </Flex>
           <Flex width='full' alignItems='center' justifyContent='center' gap={8}>

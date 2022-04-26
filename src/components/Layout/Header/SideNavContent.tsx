@@ -1,6 +1,8 @@
 import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Badge, Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { getConfig } from 'config'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
@@ -69,6 +71,12 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           isExternal
           href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
         />
+        <Flex width='full' alignItems='center' justifyContent='space-between' fontSize='sm' px={4}>
+          <Text color='gray.500' fontWeight='medium' translation='connectWalletPage.shapeshift' />
+          <Badge colorScheme='blue' ml={2}>
+            {getConfig().REACT_APP_VERSION}
+          </Badge>
+        </Flex>
       </Stack>
     </Flex>
   )
