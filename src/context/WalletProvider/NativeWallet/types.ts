@@ -22,5 +22,18 @@ export interface NativeSetupProps
 }
 
 export interface LoginError {
-  message: '2fa required' | '2fa invalid'
+  response: {
+    status: number
+    data: {
+      success: boolean
+      error: {
+        code: number
+        msg: string
+      }
+    }
+  }
+}
+
+export interface DecryptionError {
+  message: string
 }

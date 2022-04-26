@@ -31,7 +31,7 @@ export const decryptNativeWallet = async (
     const encryptedWallet = getEncryptedWallet()
     await encryptedWallet.init(email, password, encryptedWalletString)
     const mnemonic = await encryptedWallet.decrypt()
-    if (bip39.validateMnemonic(mnemonic)) {
+    if (!bip39.validateMnemonic(mnemonic)) {
       throw new Error('Invalid Mnemonic')
     }
     return mnemonic

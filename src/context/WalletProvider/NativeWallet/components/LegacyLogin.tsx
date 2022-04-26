@@ -22,10 +22,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
-import { LoginError } from '../types'
-
-// @TODO(NeOMakinG): Remove this and add the 2fa code logic
-const twoFactorAuthCode = ''
+import { DecryptionError, LoginError } from '../types'
 
 export const LegacyLogin = () => {
   const history = useHistory()
@@ -39,11 +36,18 @@ export const LegacyLogin = () => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
 
-  const isLoginError = (err: any): err is LoginError => err && typeof err.message === 'string'
+  const isLoginError = (err: any): err is LoginError =>
+    err && typeof err.response?.data?.error?.msg === 'string'
+
+  const isDecryptionError = (err: any): err is DecryptionError =>
+    err &&
+    typeof err.message === 'string' &&
+    err.message?.startsWith('Native wallet decryption failed')
 
   type LoginResponse = {
     success: boolean
@@ -70,16 +74,32 @@ export const LegacyLogin = () => {
         await decryptNativeWallet(values.email, values.password, encryptedWallet),
       )
       history.push('/native/legacy/login/success', { vault })
+      // Clear the form state on success.
+      reset()
     } catch (err) {
-      if (isLoginError(err) && err.message === '2fa required') {
-        setTwoFactorRequired(true)
+      if (isLoginError(err)) {
+        if (err.response.status === 428 && err.response.data.error.msg === '2fa required') {
+          setTwoFactorRequired(true)
+          return
+        }
 
-        return
+        if (err.response.status === 412 && err.response.data.error.msg === '2fa invalid') {
+          setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
+          return
+        }
+
+        // Successful account login, but no Native Wallet for account.
+        if (
+          err.response.status === 404 &&
+          err.response.data.error.msg.startsWith('no native wallet located for')
+        ) {
+          setError(translate('walletProvider.shapeShift.legacy.noWallet'))
+          return
+        }
       }
 
-      if (isLoginError(err) && err.message === '2fa invalid') {
-        setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
-
+      if (isDecryptionError(err)) {
+        setError(translate('walletProvider.shapeShift.legacy.decryptionError'))
         return
       }
 
@@ -202,7 +222,6 @@ export const LegacyLogin = () => {
             </Alert>
           )}
 
-          <Input name='2fa' value={twoFactorAuthCode} type='hidden' />
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
             <Text translation={isTwoFactorRequired ? 'common.verify' : 'common.login'} />
           </Button>
