@@ -75,11 +75,13 @@ export const LegacyLogin = () => {
       reset()
     } catch (err) {
       if (isLoginError(err)) {
+        if (err.response.status === 400 && err.response.data.error.msg === 'invalid captcha') {
+          setError(translate('walletProvider.shapeShift.legacy.invalidCaptcha'))
+        }
         if (err.response.status === 428 && err.response.data.error.msg === '2fa required') {
           setTwoFactorRequired(true)
           return
         }
-
         if (err.response.status === 412 && err.response.data.error.msg === '2fa invalid') {
           setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
           return
