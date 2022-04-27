@@ -811,7 +811,8 @@
         "twoFactorPlaceholder": "6-digit code",
         "twoFactorRequired": "2FA is required",
         "invalidTwoFactor": "6-digit code is invalid",
-        "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
+        "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app.",
+        "tooManyAttempts": "Too many attempts, please try again later."
       }
     },
     "selectModal": {

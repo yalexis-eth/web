@@ -38,7 +38,8 @@ export const LegacyLogin = () => {
   const translate = useTranslate()
 
   const isLoginError = (err: any): err is LoginError =>
-    err && typeof err.response?.data?.error?.msg === 'string'
+    (err.response.status === 429 || typeof err?.response?.data?.error?.msg === 'string') &&
+    typeof err.response.status === 'number'
 
   const isDecryptionError = (err: any): err is DecryptionError =>
     err &&
@@ -84,6 +85,10 @@ export const LegacyLogin = () => {
         }
         if (err.response.status === 412 && err.response.data.error.msg === '2fa invalid') {
           setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
+          return
+        }
+        if (err.response.status === 429) {
+          setError(translate('walletProvider.shapeShift.legacy.tooManyAttempts'))
           return
         }
 
