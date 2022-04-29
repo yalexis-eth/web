@@ -20,6 +20,8 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 async function connectCypressWallet(
@@ -67,6 +69,7 @@ export const ConnectWallet = () => {
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
+  const demoWalletFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'DemoWallet'))
   useEffect(() => {
     hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
     // Programmatic login for Cypress tests
@@ -160,20 +163,21 @@ export const ConnectWallet = () => {
         >
           <Text translation='connectWalletPage.cta' />
         </Button>
-
-        <Button
-          size='md'
-          zIndex={1}
-          colorScheme='blue'
-          variant='ghost'
-          mt={6}
-          rightIcon={<ArrowForwardIcon />}
-          onClick={connectDemo}
-          isLoading={state.isLoadingLocalWallet}
-          data-test='view-a-demo-button'
-        >
-          <Text translation='connectWalletPage.orViewADemo' />
-        </Button>
+        {demoWalletFeatureFlag && (
+          <Button
+            size='md'
+            zIndex={1}
+            colorScheme='blue'
+            variant='ghost'
+            mt={6}
+            rightIcon={<ArrowForwardIcon />}
+            onClick={connectDemo}
+            isLoading={state.isLoadingLocalWallet}
+            data-test='view-a-demo-button'
+          >
+            <Text translation='connectWalletPage.orViewADemo' />
+          </Button>
+        )}
       </Center>
     </Page>
   )
