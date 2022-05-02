@@ -171,3 +171,11 @@ Cypress.Commands.add('navigateToAssets', () => {
 
   cy.url().should('equal', `${baseUrl}assets`)
 })
+
+Cypress.Commands.add('connectDemoWallet', () => {
+  cy.clearIndexedDB()
+  cy.visit('')
+  cy.getBySel('view-a-demo-button').should('exist')
+  cy.getBySel('view-a-demo-button').click()
+  cy.url().should('equal', `${baseUrl}dashboard`)
+})

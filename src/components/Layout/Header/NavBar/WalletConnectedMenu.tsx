@@ -49,12 +49,13 @@ export const WalletConnectedMenu = ({
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-            <RawText>{walletInfo?.name}</RawText>
+            <RawText data-test='connected-wallet-menu-wallet-name'>{walletInfo?.name}</RawText>
             {!isConnected && (
               <Text
                 translation={'connectWallet.menu.disconnected'}
                 fontSize='sm'
                 color='yellow.500'
+                data-test='connected-wallet-menu-wallet-disconnected'
               />
             )}
             {keepKeySettingsFlag && keepKeyWallet && <ChevronRightIcon />}

@@ -22,6 +22,7 @@ export const FiatRamps = () => {
       onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
       variant='ghost-filled'
       justifyContent={{ base: 'flex-start', md: 'center' }}
+      data-test='nav-bar-fiat-ramps-button'
     >
       <Text translation='fiatRamps.headerLabel' />
     </Button>

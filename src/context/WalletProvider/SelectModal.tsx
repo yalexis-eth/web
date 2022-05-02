@@ -17,7 +17,7 @@ export const SelectModal = () => {
 
   return (
     <>
-      <ModalHeader>
+      <ModalHeader data-test='wallet-provider-select-modal-header'>
         <Text translation={'walletProvider.selectModal.header'} />
       </ModalHeader>
       <ModalBody>

@@ -111,6 +111,7 @@ const WalletButton: FC<WalletButtonProps> = ({
         </HStack>
       }
       rightIcon={<ChevronDownIcon />}
+      data-test='user-menu-button'
     >
       <Flex>
         {walletLabel ? (

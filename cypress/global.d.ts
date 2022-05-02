@@ -17,5 +17,6 @@ declare namespace Cypress {
     navigateToDefi(): Chainable<Element>
     backdropDismiss(): Chainable<Element>
     waitForAllGetRequests(): Chainable<Element>
+    connectDemoWallet(): Chainable<Element>
   }
 }

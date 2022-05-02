@@ -47,6 +47,7 @@ export const Portfolio = () => {
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
+          data-test='dashboard-portfolio-card-header'
         >
           <Box mb={{ base: 6, md: 0 }}>
             <Card.Heading as='div' color='gray.500'>
