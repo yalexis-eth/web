@@ -29,7 +29,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   })
 
   useEffect(
-    () => setPercentChange(calculatePercentChange(balanceChartData)),
+    () => setPercentChange(calculatePercentChange(balanceChartData.total)),
     [balanceChartData, setPercentChange],
   )
 
@@ -39,7 +39,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     <Card.Body p={0} height='350px'>
       <Graph
         color={color}
-        data={balanceChartData}
+        data={balanceChartData.total}
         loading={balanceChartDataLoading}
         isLoaded={!balanceChartDataLoading}
       />

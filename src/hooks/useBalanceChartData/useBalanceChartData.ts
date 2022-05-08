@@ -64,9 +64,13 @@ type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units
 }
 
+type FiatBalance = {
+  [k: AssetId]: BigNumber // map of asset to usd
+}
+
 type BucketBalance = {
   crypto: CryptoBalance
-  fiat: BigNumber
+  fiat: FiatBalance
 }
 
 export type Bucket = {
@@ -115,6 +119,8 @@ export const makeBuckets: MakeBuckets = args => {
     return acc
   }, {})
 
+  const fiatBalances: FiatBalance = assetBalances
+
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
     return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
@@ -124,7 +130,7 @@ export const makeBuckets: MakeBuckets = args => {
       const rebases: RebaseHistory[] = []
       const balance = {
         crypto: assetBalances,
-        fiat: bn(0),
+        fiat: fiatBalances,
       }
       const bucket = { start, end, txs, rebases, balance }
       acc.push(bucket)
@@ -181,7 +187,7 @@ type FiatBalanceAtBucketArgs = {
   }
 }
 
-type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
+type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => FiatBalance
 
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
@@ -191,6 +197,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { balance, end } = bucket
   const date = end.valueOf()
   const { crypto } = balance
+
+  const initial: FiatBalance = {}
 
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[assetId]
@@ -202,8 +210,9 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     }
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
-    return acc.plus(assetFiatBalance)
-  }, bn(0))
+    acc[assetId] = bnOrZero(acc[assetId]).plus(assetFiatBalance)
+    return acc
+  }, initial)
 }
 
 type CalculateBucketPricesArgs = {
@@ -290,17 +299,41 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
   return buckets
 }
 
-type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
+type BucketsToChartData = (buckets: Bucket[]) => BalanceChartData
+
+const makeEmptyBalanceChartData = (): BalanceChartData => ({
+  byAssetId: {},
+  total: [],
+})
 
 export const bucketsToChartData: BucketsToChartData = buckets => {
-  return buckets.map(bucket => ({
-    price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
-    date: bucket.end.valueOf(),
-  }))
+  const initial: BalanceChartData = makeEmptyBalanceChartData()
+  return buckets.reduce((acc, bucket, idx) => {
+    const date = bucket.end.valueOf()
+    acc.total[idx] = { price: 0, date }
+    Object.entries(bucket.balance.fiat).reduce((acc, [assetId, fiatBalance]) => {
+      const price = fiatBalance.decimalPlaces(2).toNumber()
+      if (!acc.byAssetId[assetId]) acc.byAssetId[assetId] = []
+      if (!acc.byAssetId[assetId][idx]) acc.byAssetId[assetId][idx] = { price, date }
+      acc.byAssetId[assetId][idx].price += price
+      acc.total[idx].price += price
+      return acc
+    }, initial)
+    return acc
+  }, initial)
+}
+
+type AssetHistoryData = {
+  [k: AssetId]: Array<HistoryData>
+}
+
+type BalanceChartData = {
+  byAssetId: AssetHistoryData
+  total: Array<HistoryData>
 }
 
 type UseBalanceChartDataReturn = {
-  balanceChartData: Array<HistoryData>
+  balanceChartData: BalanceChartData
   balanceChartDataLoading: boolean
 }
 
@@ -325,7 +358,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
-  const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
+  const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(
+    makeEmptyBalanceChartData(),
+  )
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
     selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
@@ -428,6 +463,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     })
 
     const chartData = bucketsToChartData(calculatedBuckets)
+    console.info('chartData', chartData)
 
     setBalanceChartData(chartData)
     setBalanceChartDataLoading(false)
