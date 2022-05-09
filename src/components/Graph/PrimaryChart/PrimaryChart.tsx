@@ -1,27 +1,27 @@
 import { useColorModeValue } from '@chakra-ui/color-mode'
 import { useToken } from '@chakra-ui/system'
-import { HistoryData } from '@shapeshiftoss/types'
+import { AssetId } from '@shapeshiftoss/caip'
 import { localPoint } from '@visx/event'
 import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
-import { Bar, Line } from '@visx/shape'
+import { AreaStack, Bar, Line } from '@visx/shape'
 import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { bisector, extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import numeral from 'numeral'
 import React, { useCallback, useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
+import { ChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectAssets } from 'state/slices/selectors'
 import { colors } from 'theme/colors'
 
-import { AreaChart } from '../AreaChart/AreaChart'
-import { LineChart } from '../LineChart/LineChart'
 import { MaxPrice } from '../MaxPrice'
 import { MinPrice } from '../MinPrice'
 
 export interface PrimaryChartProps {
-  data: HistoryData[]
+  data: ChartData[]
   width: number
   height: number
   margin?: { top: number; right: number; bottom: number; left: number }
@@ -29,24 +29,51 @@ export interface PrimaryChartProps {
 }
 
 // accessors
-const getDate = (d: HistoryData) => new Date(d.date)
-const getStockValue = (d: HistoryData) => d?.price || 0
-const bisectDate = bisector<HistoryData, Date>(d => new Date(d.date)).left
+const getDate = (d: ChartData) => new Date(d.date)
+const getStockValue = (d: ChartData) => d?.price || 0
+const bisectDate = bisector<ChartData, Date>(d => new Date(d.date)).left
 
-export const PrimaryChart = ({
-  data,
+export const PrimaryChart: React.FC<PrimaryChartProps> = ({
+  data: originalData,
   width = 10,
   height,
   color = 'green.500',
   margin = { top: 0, right: 0, bottom: 0, left: 0 },
-}: PrimaryChartProps) => {
+}) => {
   const {
     showTooltip,
     hideTooltip,
     tooltipData,
     tooltipTop = 0,
     tooltipLeft = 0,
-  } = useTooltip<HistoryData>()
+  } = useTooltip<ChartData>()
+
+  const assets = useSelector(selectAssets)
+  const cols = useMemo(() => {
+    const initial: Record<AssetId, string> = {}
+    return Object.keys(originalData?.[0] ?? {}).reduce((acc, key) => {
+      if (key === 'date') return acc
+      acc[assets?.[key].name] = assets?.[key]?.color || 'green.500'
+      return acc
+    }, initial)
+  }, [assets, originalData])
+  console.info(cols)
+
+  const data = useMemo(() => {
+    return originalData.map(d => {
+      const initial: ChartData = { date: 0, price: 0 }
+      return Object.entries(d).reduce((acc, [k, v]) => {
+        if (k === 'date') {
+          acc.date = v
+        } else {
+          acc.price += v
+          acc[assets[k].name] = v
+        }
+        return acc
+      }, initial)
+    })
+  }, [assets, originalData])
+  console.info(data)
 
   const {
     number: { toFiat },
@@ -109,11 +136,26 @@ export const PrimaryChart = ({
     [showTooltip, priceScale, dateScale, data, margin.left],
   )
 
+  // asset ids
+  const keys = useMemo(
+    () => Object.keys(data?.[0]).filter(k => !['date', 'price'].includes(k)),
+    [data],
+  )
+
+  console.info(keys)
+
+  // const zScale = useMemo(() => {
+  //   return scaleOrdinal({
+  //     range: keys.map(assetId => assets[assetId]?.color ?? 'white'),
+  //     domain: keys,
+  //   })
+  // }, [assets, keys])
+
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
-        <LineChart
-          data={data}
+        {/* <LineChart
+          data={total}
           width={width}
           hideLeftAxis
           margin={{ ...margin }}
@@ -124,8 +166,8 @@ export const PrimaryChart = ({
           xTickFormat={d => {
             return numeral(d).format(d <= 100 ? '$0.00' : '$0,0')
           }}
-        />
-        <AreaChart
+        /> */}
+        {/* <AreaChart
           hideLeftAxis
           hideBottomAxis
           data={data}
@@ -135,7 +177,27 @@ export const PrimaryChart = ({
           xScale={dateScale}
           yScale={priceScale}
           gradientColor={chartColor}
-        />
+        /> */}
+
+        <AreaStack
+          // hideLeftAxis
+          // hideBottomAxis
+          keys={keys}
+          data={data}
+          width={width}
+          // margin={{ ...margin }}
+          // yMax={yMax}
+          // x={dateScale}
+          // yScale={priceScale}
+          // gradientColor={chartColor}
+          // fill={d => zScale(keys[0])}
+          fill={'white'}
+          color={k => cols[k]}
+        >
+          {({ stacks, path }) =>
+            stacks.map(stack => <path key={`stack-${stack.key}`} d={path(stack) || ''} />)
+          }
+        </AreaStack>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         <Bar
           x={margin.left}

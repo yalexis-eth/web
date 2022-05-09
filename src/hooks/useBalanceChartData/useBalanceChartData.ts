@@ -299,12 +299,17 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
   return buckets
 }
 
+<<<<<<< Updated upstream
 type BucketsToChartData = (buckets: Bucket[]) => BalanceChartData
 
 const makeEmptyBalanceChartData = (): BalanceChartData => ({
   byAssetId: {},
   total: [],
 })
+=======
+<<<<<<< Updated upstream
+type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
+>>>>>>> Stashed changes
 
 export const bucketsToChartData: BucketsToChartData = buckets => {
   const initial: BalanceChartData = makeEmptyBalanceChartData()
@@ -333,7 +338,38 @@ type BalanceChartData = {
 }
 
 type UseBalanceChartDataReturn = {
+<<<<<<< Updated upstream
   balanceChartData: BalanceChartData
+=======
+  balanceChartData: Array<HistoryData>
+=======
+export type ChartData = {
+  [k: AssetId]: number
+  date: number
+}
+
+type BucketsToChartData = (buckets: Bucket[]) => ChartData[]
+
+export const bucketsToChartData: BucketsToChartData = buckets => {
+  const initial: ChartData[] = []
+  return buckets.reduce((acc, bucket, idx) => {
+    const date = bucket.end.valueOf()
+    const innerInitial: ChartData[] = [{ date }]
+    Object.entries(bucket.balance.fiat).reduce((_, [assetId, fiatBalance]) => {
+      const price = fiatBalance.decimalPlaces(2).toNumber()
+      if (!acc[idx]) acc[idx] = { date }
+      if (!acc[idx][assetId]) acc[idx][assetId] = 0
+      acc[idx][assetId] += price
+      return acc
+    }, innerInitial)
+    return acc
+  }, initial)
+}
+
+type UseBalanceChartDataReturn = {
+  balanceChartData: ChartData[]
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
   balanceChartDataLoading: boolean
 }
 
@@ -358,10 +394,18 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
+<<<<<<< Updated upstream
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(
     makeEmptyBalanceChartData(),
   )
+=======
+<<<<<<< Updated upstream
+  const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
+>>>>>>> Stashed changes
   // dummy assetId - we're only filtering on account
+=======
+  const [balanceChartData, setBalanceChartData] = useState<ChartData[]>([])
+>>>>>>> Stashed changes
   const balances = useAppSelector(state =>
     selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
   )

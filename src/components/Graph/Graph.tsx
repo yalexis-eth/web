@@ -1,13 +1,14 @@
 import { Center, Fade, SlideFade } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/types'
 import { ParentSize } from '@visx/responsive'
+import isEmpty from 'lodash/isEmpty'
 import { useMemo } from 'react'
+import { ChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 
 type GraphProps = {
-  data: HistoryData[] | null
+  data: ChartData[]
   isLoaded?: boolean
   loading?: boolean
   color?: string
@@ -24,7 +25,7 @@ export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
                 <GraphLoading />
               </Center>
             </Fade>
-          ) : data?.length ? (
+          ) : !isEmpty(data) ? (
             <SlideFade in={!loading}>
               <PrimaryChart
                 data={data ?? []}

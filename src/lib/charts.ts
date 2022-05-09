@@ -1,9 +1,9 @@
-import { HistoryData } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
+import { ChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { bnOrZero } from './bignumber/bignumber'
 
-type CalculatePercentChange = (data: HistoryData[]) => number
+type CalculatePercentChange = (data: ChartData[]) => number
 
 export const calculatePercentChange: CalculatePercentChange = data => {
   const start = data?.[0]?.price
