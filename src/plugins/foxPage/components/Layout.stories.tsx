@@ -9,6 +9,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetActions } from './AssetActions'
 import { FoxTab } from './FoxTab'
+import { Governance } from './Governance'
 import { Layout } from './Layout'
 import { MainOpportunity } from './MainOpportunity'
 import { Total } from './Total'
@@ -88,6 +89,7 @@ export const FoxLayout: Story = () => {
                   apy='11.61%'
                   onClick={() => null}
                 />
+                <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -118,6 +120,7 @@ export const FoxLayout: Story = () => {
                   apy='11.61%'
                   onClick={() => null}
                 />
+                <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -148,6 +151,7 @@ export const FoxLayout: Story = () => {
                   apy='11.61%'
                   onClick={() => null}
                 />
+                <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

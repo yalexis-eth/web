@@ -980,7 +980,9 @@
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "governanceTitle": "Governance",
+      "seeAllProposals": "See All Proposals"
     }
   }
 }
