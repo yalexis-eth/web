@@ -982,9 +982,7 @@
       "balance": "Balance",
       "getStarted": "Get Started",
       "governanceTitle": "Governance",
-      "seeAllProposals": "See All Proposals",
-      "for": "For",
-      "against": "Against"
+      "seeAllProposals": "See All Proposals"
     }
   }
 }
