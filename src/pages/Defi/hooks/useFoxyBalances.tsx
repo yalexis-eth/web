@@ -1,6 +1,6 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -23,7 +24,7 @@ export type FoxyOpportunity = {
   contractAddress: string
   rewardToken: string
   stakingToken: string
-  chain: ChainTypes
+  chainId: ChainId
   tvl?: BigNumber
   expired?: boolean
   apy?: string
@@ -82,6 +83,7 @@ async function getFoxyOpportunities(
     const pricePerShare = api.pricePerShare()
     acc[opportunity.contractAddress] = {
       ...opportunity,
+      chainId: chainTypeToMainnetChainId(opportunity.chain),
       balance: bnOrZero(balance).toString(),
       contractAssetId,
       tokenAssetId,

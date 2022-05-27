@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -45,6 +46,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
+        chainId: chainTypeToMainnetChainId(vault.chain),
         balance,
         vaultAssetId,
         tokenAssetId,
