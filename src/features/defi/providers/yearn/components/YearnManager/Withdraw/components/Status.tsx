@@ -1,7 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext } from 'react'
@@ -20,9 +19,9 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Status = () => {
   const { state } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const network = NetworkTypes.MAINNET
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({

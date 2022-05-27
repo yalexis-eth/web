@@ -1,7 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext, useMemo } from 'react'
@@ -20,10 +20,10 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, tokenId, rewardId } = query
+  const { chainId, tokenId, rewardId } = query
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
 
-  const network = NetworkTypes.MAINNET
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({

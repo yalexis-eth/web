@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
@@ -35,10 +35,10 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId } = query
   const toast = useToast()
 
-  const network = NetworkTypes.MAINNET
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({

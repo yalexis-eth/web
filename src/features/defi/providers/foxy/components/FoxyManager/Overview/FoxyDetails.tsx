@@ -1,6 +1,5 @@
 import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -27,12 +26,12 @@ export const FoxyDetails = () => {
     path: '/defi/:earnType/:provider/:action',
     exact: true,
   })
-  const { chain, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
+  const { chain, network } = fromChainId(chainId)
   const stakingAssetId = toAssetId({
     chain,
     network,

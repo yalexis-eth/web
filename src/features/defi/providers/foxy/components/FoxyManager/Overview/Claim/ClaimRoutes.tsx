@@ -1,5 +1,4 @@
-import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
@@ -27,8 +26,8 @@ type CliamRouteProps = {
 
 export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, tokenId, chain } = query
-  const network = NetworkTypes.MAINNET
+  const { contractAddress, tokenId, chainId } = query
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chain,

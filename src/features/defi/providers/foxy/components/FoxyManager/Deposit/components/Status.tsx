@@ -1,8 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext } from 'react'
@@ -28,8 +27,8 @@ export const Status = ({ apy }: FoxyStatusProps) => {
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, tokenId, rewardId } = query
-  const network = NetworkTypes.MAINNET
+  const { chainId, tokenId, rewardId } = query
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })

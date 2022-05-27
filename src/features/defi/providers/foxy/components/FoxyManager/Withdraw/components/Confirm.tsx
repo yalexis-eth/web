@@ -1,7 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
@@ -32,9 +32,9 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, tokenId, rewardId } = query
 
-  const network = NetworkTypes.MAINNET
+  const { chain, network } = fromChainId(chainId)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({

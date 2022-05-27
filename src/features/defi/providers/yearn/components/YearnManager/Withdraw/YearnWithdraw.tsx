@@ -1,7 +1,7 @@
 import { Center, Flex } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
@@ -34,10 +34,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
+  const { chain, network } = fromChainId(chainId)
   // Asset info
   const underlyingAssetId = toAssetId({
     chain,
