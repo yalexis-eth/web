@@ -92,6 +92,20 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
   },
+  [KeyManager.Keplr]: {
+    ...KeplrConfig,
+    routes: [
+      { path: '/keplr/connect', component: KeplrConnect },
+      { path: '/keplr/failure', component: KeplrFailure },
+    ],
+  },
+  [KeyManager.XDefi]: {
+    ...XDEFIConfig,
+    routes: [
+      { path: '/xdefi/connect', component: XDEFIConnect },
+      { path: '/xdefi/failure', component: XDEFIFailure },
+    ],
+  },
   [KeyManager.Portis]: {
     ...PortisConfig,
     routes: [
@@ -106,22 +120,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/tallyho/failure', component: TallyHoFailure },
     ],
   },
-  [KeyManager.XDefi]: {
-    ...XDEFIConfig,
-    routes: [
-      { path: '/xdefi/connect', component: XDEFIConnect },
-      { path: '/xdefi/failure', component: XDEFIFailure },
-    ],
-  },
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
-  },
-  [KeyManager.Keplr]: {
-    ...KeplrConfig,
-    routes: [
-      { path: '/keplr/connect', component: KeplrConnect },
-      { path: '/keplr/failure', component: KeplrFailure },
-    ],
   },
 }
