@@ -201,8 +201,6 @@ export const useSwapper = () => {
 
         if (!swapper) throw new Error('no swapper available')
 
-//        const { getUsdRate } = swapper
-
         const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
           swapper.getUsdRate({ ...sellAsset }),
           swapper.getUsdRate({ ...buyAsset }),
