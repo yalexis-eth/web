@@ -3,6 +3,7 @@ import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import {
   QuoteFeeData,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
@@ -11,7 +12,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
@@ -54,8 +55,23 @@ export const useSwapper = () => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
     manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
+    // manager.addSwapper(
+    //   SwapperType.Thorchain,
+    //   new ThorchainSwapper({ midgardUrl: 'https://midgard.thorchain.info/v2', adapterManager }),
+    // )
     return manager
   })
+
+  useEffect(() => {
+    const ts = new ThorchainSwapper({
+      midgardUrl: 'https://midgard.thorchain.info/v2',
+      adapterManager,
+    })
+    if (swapperManager.swappers.keys.length < 2)
+      ts.initialize().then(() => {
+        swapperManager.addSwapper(SwapperType.Thorchain, ts)
+      })
+  }, [])
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -185,12 +201,12 @@ export const useSwapper = () => {
 
         if (!swapper) throw new Error('no swapper available')
 
-        const { getUsdRate } = swapper
+//        const { getUsdRate } = swapper
 
         const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
-          getUsdRate({ ...sellAsset }),
-          getUsdRate({ ...buyAsset }),
-          getUsdRate({ ...feeAsset }),
+          swapper.getUsdRate({ ...sellAsset }),
+          swapper.getUsdRate({ ...buyAsset }),
+          swapper.getUsdRate({ ...feeAsset }),
         ])
 
         const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
