@@ -201,6 +201,7 @@
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@types/react-window": "^1.8.5",
     "@types/redux-logger": "^3.0.9",
+    "assert": "^2.0.0",
     "circular-dependency-plugin": "^5.2.2",
     "cypress": "10.0.2",
     "eslint-config-prettier": "^8.3.0",
@@ -209,8 +210,8 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
     "jest-mock": "^27.5.1",
-    "msw": "^0.36.5",
-    "msw-storybook-addon": "^1.6.0",
+    "msw": "^0.42.1",
+    "msw-storybook-addon": "^1.6.3",
     "multiformats": "^9.6.3",
     "patch-package": "^6.4.7",
     "path-browserify": "^1.0.1",
@@ -231,7 +232,8 @@
     "yarn-minify": "^1.0.1"
   },
   "resolutions": {
-    "babel-loader": "8.1.0"
+    "babel-loader": "8.1.0",
+    "webpack": "5.65.0"
   },
   "config-overrides-path": "react-app-rewired.config.js",
   "fork-ts-checker": {
