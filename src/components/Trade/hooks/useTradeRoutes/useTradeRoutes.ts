@@ -62,9 +62,11 @@ export const useTradeRoutes = (
 
       const buyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset) {
+      console.log('SETTING DEFAULT ASSETS')
+      if (sellAsset && buyAsset && Object.keys(swapperManager.swappers).length === 2) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
+        console.log('about to updateQuote', swapperManager)
         await updateQuote({
           forceQuote: true,
           amount: '0',

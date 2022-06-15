@@ -1,17 +1,19 @@
+/* eslint-disable no-console */
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import {
   QuoteFeeData,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
@@ -28,6 +30,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 
 const debounceTime = 1000
 
@@ -52,10 +55,37 @@ export const useSwapper = () => {
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
-    const web3 = getWeb3Instance()
-    manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
     return manager
   })
+
+  useEffect(() => {
+    ;(async () => {
+      if (!adapterManager || !swapperManager) {
+        console.log('returning early')
+        return
+      }
+      console.log('initializing swappers')
+      const web3 = getWeb3Instance()
+      const zrxSwapper = new ZrxSwapper({
+        web3,
+        adapter: (await adapterManager.byChain(ChainTypes.Ethereum)) as ethereum.ChainAdapter,
+      })
+
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
+        adapterManager,
+        web3,
+      })
+      try {
+        await zrxSwapper.initialize()
+        await thorSwapper.initialize()
+        swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+        swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      } catch (e) {
+        console.log('e is', { e })
+      }
+    })()
+  }, [adapterManager, swapperManager])
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -182,7 +212,7 @@ export const useSwapper = () => {
           buyAssetId: buyAsset.assetId,
           sellAssetId: sellAsset.assetId,
         })
-
+        console.log('UPDATING QUOTE DEBOUNCED')
         if (!swapper) throw new Error('no swapper available')
 
         const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
