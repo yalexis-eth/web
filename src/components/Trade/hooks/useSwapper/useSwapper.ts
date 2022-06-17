@@ -10,7 +10,9 @@ import {
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
+import { ThorchainSwapper } from '@shapeshiftoss/swapper'
 import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -22,9 +24,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetIds,
   selectFeeAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -63,14 +67,14 @@ export const useSwapper = () => {
     const web3 = getWeb3Instance()
 
     ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl,
+        adapterManager,
+        web3,
+      })
+      await thorSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
       const zrxSwapper = new ZrxSwapper({
         web3,
@@ -85,6 +89,12 @@ export const useSwapper = () => {
   const {
     state: { wallet },
   } = useWallet()
+
+  const btcAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, 'bip122:000000000019d6689c085ae165831e93'),
+  )
+
+  console.log('btcAccountSpecifier', btcAccountSpecifier)
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -215,7 +225,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet }) => {
+    debounce(async ({ amount, sellAsset, buyAsset, action, wallet, btcAccountSpecifier }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -251,9 +261,21 @@ export const useSwapper = () => {
               wallet,
             })
           } else if ('bip122:000000000019d6689c085ae165831e93') {
-            // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-            // They will need to have selected an accountType from a modal if bitcoin
-            throw new Error('bitcoin unsupported')
+            // TODO btcAccountSpecifier must come from the btc account selection modal
+            // We are defaulting temporarily for development
+            const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
+            if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+            return swapper.getTradeQuote({
+              chainId: 'bip122:000000000019d6689c085ae165831e93',
+              sellAsset,
+              buyAsset,
+              sellAmount,
+              sendMax: false,
+              sellAssetAccountNumber: 0,
+              wallet,
+              bip44Params: utxoParams.bip44Params,
+              accountType,
+            })
           }
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
@@ -292,6 +314,7 @@ export const useSwapper = () => {
       action,
       buyAsset,
       wallet,
+      btcAccountSpecifier,
     })
   }
 
