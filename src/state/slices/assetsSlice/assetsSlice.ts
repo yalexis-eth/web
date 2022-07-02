@@ -11,7 +11,7 @@ let service: AssetService | undefined = undefined
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = async () => {
+export const getAssetService = async () => {
   if (!service) {
     service = new AssetService()
   }

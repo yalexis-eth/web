@@ -1,16 +1,18 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import {
+  CowSwapper,
   QuoteFeeData,
   Swapper,
   SwapperManager,
+  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -30,6 +32,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+import { getAssetService } from 'state/slices/assetsSlice/assetsSlice'
 
 const debounceTime = 1000
 
@@ -63,21 +66,24 @@ export const useSwapper = () => {
     const web3 = getWeb3Instance()
 
     ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      /*const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl,
+        adapterManager,
+        web3,
+      })
+      await thorSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)*/
 
+      const assetService = await getAssetService()
+      const cowSwapper = new CowSwapper({adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter, apiUrl: 'https://api.cow.fi/mainnet/api/', assetService, web3})
       const zrxSwapper = new ZrxSwapper({
         web3,
         adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
       })
 
       await zrxSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.CowSwap, cowSwapper)
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
     })()
   }, [adapterManager, swapperManager])
