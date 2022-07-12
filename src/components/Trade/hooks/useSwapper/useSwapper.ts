@@ -5,7 +5,6 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
@@ -100,8 +99,9 @@ export const useSwapper = () => {
     try {
       ;(async () => {
         const assetService = await getAssetService()
-        const cowSwapper = new CowSwapper({adapter: adapterManager.get(KnownChainIds.EthereumMainnet) as unknown as ethereum.ChainAdapter, apiUrl: 'https://api.cow.fi/mainnet/api/', assetService, web3})
-        swapperManager.addSwapper(SwapperType.CowSwap, cowSwapper)
+        const feeAsset = assetService.getAll()['eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2']
+        const cowSwapper = new CowSwapper({adapter: adapterManager.get(KnownChainIds.EthereumMainnet) as unknown as ethereum.ChainAdapter, apiUrl: 'https://api.cow.fi/mainnet/api/', feeAsset, web3})
+        swapperManager.addSwapper(cowSwapper)
         swapperManager.addSwapper(zrxEthereumSwapper)
         swapperManager.addSwapper(zrxAvalancheSwapper)
       })()
