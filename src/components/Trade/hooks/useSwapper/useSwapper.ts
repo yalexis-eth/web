@@ -32,6 +32,7 @@ import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
+  selectFeatureFlags,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -68,9 +69,13 @@ type DebouncedQuoteInput = {
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
 
-const getSwapperManager = async (): Promise<SwapperManager> => {
-  if (_swapperManager) return _swapperManager
+type GetSwapperManagerArgs = { reInitialize: boolean }
+type GetSwapperManager = (args: GetSwapperManagerArgs) => Promise<SwapperManager>
 
+const getSwapperManager: GetSwapperManager = async ({ reInitialize }) => {
+  if (_swapperManager && !reInitialize) return _swapperManager
+
+  console.info('getSwapperManager reInitialize', reInitialize)
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
 
@@ -133,15 +138,17 @@ export const useSwapper = () => {
     Trade<KnownChainIds>,
   ]
 
+  const featureFlags = useSelector(selectFeatureFlags)
+
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager())
+      setSwapperManager(await getSwapperManager({ reInitialize: true }))
     })()
-  }, [])
+  }, [featureFlags])
 
   const {
     state: { wallet },
