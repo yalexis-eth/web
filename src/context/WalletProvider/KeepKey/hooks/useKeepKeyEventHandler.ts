@@ -119,6 +119,8 @@ export const useKeepKeyEventHandler = (
           switch (message?.code) {
             case FailureType.PINCANCELLED:
               fnLogger.warn('PIN Cancelled')
+              handleDisconnect(deviceId)
+              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
               break
             case FailureType.ACTIONCANCELLED:
               fnLogger.debug('Action Cancelled')
