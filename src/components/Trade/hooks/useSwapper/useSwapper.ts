@@ -306,6 +306,7 @@ export const useSwapper = () => {
 
     if (!chainAdapter) throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
+    // this has to go away too
     const receiveAddress = await getFirstReceiveAddress({
       accountSpecifiersList,
       buyAsset,
@@ -376,6 +377,7 @@ export const useSwapper = () => {
     wallet: HDWallet
   }
   type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
+  // THIS function should probably be deleted once we have the concept of multiple accounts
   const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
     accountSpecifiersList,
     buyAsset,
@@ -454,6 +456,7 @@ export const useSwapper = () => {
           if (!chainAdapter)
             throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
+          // this will have to go away for the bitcoin or possible UTXO account selection
           const receiveAddress = await getFirstReceiveAddress({
             accountSpecifiersList,
             buyAsset,

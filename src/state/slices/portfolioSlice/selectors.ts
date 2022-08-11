@@ -129,6 +129,7 @@ export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
 
+// this logic will mayyy change once we have multiple accounts for account based chains? good to check
 export const selectIsPortfolioLoaded = createSelector(
   selectAccountSpecifiers,
   selectPortfolioAssetIds,
