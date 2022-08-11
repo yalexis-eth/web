@@ -169,6 +169,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
 
               for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
+                // START HERE - the last param here is accountNumber which is difficult to grep for
                 const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {
@@ -197,6 +198,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!supportsEthSwitchChain(wallet)) continue
               }
 
+              // to derive addresses for accountNumber > 0, pass in the optional bip44params here with the accountNumber
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey.toLowerCase() })
@@ -241,6 +243,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const { getAccount } = portfolioApi.endpoints
 
+    // this is where we actually take the account specifiers, and call chain adapters/unchained to fetch the accounts
     accountSpecifiersList.forEach(accountSpecifierMap => {
       dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
     })
@@ -252,9 +255,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
+    // similarly here for the tx history for the account specifiers
     dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
   }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
 
+  // similarly here for auxiliary data - cosmosSDK validator data, and FOXy rebase history
   // once portfolio and transaction history are done loading, fetch remaining chain specific data
   useEffect(() => {
     if (!isPortfolioLoaded) return

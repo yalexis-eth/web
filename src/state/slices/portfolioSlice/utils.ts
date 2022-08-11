@@ -131,6 +131,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   return null
 }
 
+// accountIndex here is actually accountNumber, again chat with adam/kevin
 export const accountIdToUtxoParams = (accountId: AccountSpecifier, accountIndex: number) => {
   const accountType = accountIdToAccountType(accountId)
   const chainId = fromAccountId(accountId).chainId
