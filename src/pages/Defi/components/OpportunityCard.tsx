@@ -58,11 +58,8 @@ export const OpportunityCard = ({
   moniker,
   assetId,
   icons,
-<<<<<<< HEAD
   opportunityName,
-=======
   version,
->>>>>>> 377ff85a (feat: idle finance)
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
