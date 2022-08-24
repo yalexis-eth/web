@@ -1,6 +1,6 @@
-import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
+import { Button, ButtonGroup, MenuButtonProps, Stack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -57,7 +57,8 @@ type WalletButtonProps = {
   isDemoWallet: boolean
   isLoadingLocalWallet: boolean
   onConnect: () => void
-} & Pick<InitialState, 'walletInfo'>
+} & Pick<InitialState, 'walletInfo'> &
+  MenuButtonProps
 
 const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
@@ -65,12 +66,14 @@ const WalletButton: FC<WalletButtonProps> = ({
   walletInfo,
   onConnect,
   isLoadingLocalWallet,
+  ...rest
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
-  const bgColor = useColorModeValue('gray.300', 'gray.800')
+  const color = useColorModeValue('black', 'white')
 
   useEffect(() => {
+    console.info(walletInfo)
     ;(async () => {
       setWalletLabel('')
       setShouldShorten(true)
@@ -92,39 +95,41 @@ const WalletButton: FC<WalletButtonProps> = ({
         return setWalletLabel(walletInfo.meta.label)
       }
     })()
-  }, [walletInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
-    <Button
-      width={{ base: '100%', lg: 'auto' }}
+    <MenuButton
+      as={Button}
+      width='full'
+      height='auto'
+      py={2}
+      variant='ghost'
+      color={color}
+      iconSpacing={4}
+      pl={2}
       justifyContent='flex-start'
-      isLoading={isLoadingLocalWallet}
+      rightIcon={<ChevronDownIcon ml='auto' />}
       leftIcon={
-        <HStack>
-          {!(isConnected || isDemoWallet) && (
-            <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />
-          )}
-          <WalletImage walletInfo={walletInfo} />
-        </HStack>
+        <WalletImage
+          walletInfo={walletInfo}
+          isLoading={isLoadingLocalWallet}
+          hasError={!(isConnected || isDemoWallet)}
+        />
       }
+      {...rest}
     >
-      <Flex>
+      <Stack spacing={0} justifyContent='flex-start' alignItems='flex-start'>
+        <RawText fontSize='xs' color='gray.500' lineHeight='short'>
+          Ethereum
+        </RawText>
         {walletLabel ? (
-          <MiddleEllipsis
-            rounded='lg'
-            fontSize='sm'
-            p='1'
-            pl='2'
-            pr='2'
-            shouldShorten={shouldShorten}
-            bgColor={bgColor}
-            value={walletLabel}
-          />
+          <MiddleEllipsis rounded='lg' shouldShorten={shouldShorten} value={walletLabel} />
         ) : (
           <RawText>{walletInfo?.name}</RawText>
         )}
-      </Flex>
-    </Button>
+      </Stack>
+    </MenuButton>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
@@ -142,20 +147,21 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
+
+  useEffect(() => {
+    console.info('state changed')
+  }, [state])
+
   return (
     <ButtonGroup isAttached width='full'>
-      <WalletButton
-        onConnect={handleConnect}
-        walletInfo={walletInfo}
-        isConnected={isConnected}
-        isDemoWallet={isDemoWallet}
-        isLoadingLocalWallet={state.isLoadingLocalWallet}
-      />
       <Menu>
-        <MenuButton
-          as={IconButton}
+        <WalletButton
           aria-label='Open wallet dropdown menu'
-          icon={<ChevronDownIcon />}
+          onConnect={handleConnect}
+          walletInfo={walletInfo}
+          isConnected={isConnected}
+          isDemoWallet={isDemoWallet}
+          isLoadingLocalWallet={state.isLoadingLocalWallet}
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList
@@ -163,7 +169,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           minWidth={{ base: 0, md: 'xs' }}
           overflow='hidden'
           // Override zIndex to prevent InputLeftElement displaying over menu
-          zIndex={2}
         >
           {hasWallet ? (
             <WalletConnected

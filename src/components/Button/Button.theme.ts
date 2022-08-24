@@ -178,11 +178,12 @@ export const ButtonStyle: ComponentStyleConfig = {
       const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
       if (c === 'gray') {
         return {
-          color: 'gray.500',
+          color: mode('black', 'white')(props),
           height: '48px',
-          svg: {
+          '.chakra-button__icon svg': {
             width: '1.5rem',
             height: '1.5rem',
+            color: 'gray.500',
           },
           _hover: {
             color: mode('inherit', 'whiteAlpha.800')(props),
@@ -191,7 +192,7 @@ export const ButtonStyle: ComponentStyleConfig = {
           _active: {
             bg: mode('gray.200', 'gray.700')(props),
             color: mode('gray.800', 'white')(props),
-            svg: {
+            '.chakra-button__icon svg': {
               color: mode('blue.500', 'blue.200')(props),
             },
             _checked: {
@@ -203,7 +204,7 @@ export const ButtonStyle: ComponentStyleConfig = {
       return {
         color: mode(`${c}.500`, `${c}.200`)(props),
         height: '48px',
-        svg: {
+        '.chakra-button__icon svg': {
           width: '1.5rem',
           height: '1.5rem',
         },

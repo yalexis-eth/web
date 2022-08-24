@@ -50,9 +50,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           <Flex width='full'>
             <ChainMenu />
           </Flex>
-          <Flex width='full'>
-            <UserMenu onClick={() => handleClick()} />
-          </Flex>
+          <Flex width='full'></Flex>
           <Flex width='full'>
             <FiatRamps />
           </Flex>
@@ -61,7 +59,9 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           </Box>
         </Flex>
       )}
-
+      <Flex width='full'>
+        <UserMenu onClick={() => handleClick()} />
+      </Flex>
       <NavBar isCompact={isCompact} mt={6} />
       <Stack width='full' mt={6}>
         <MainNavLink

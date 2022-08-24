@@ -60,7 +60,7 @@ export const Header = () => {
         bg={bg}
         width='full'
         position='sticky'
-        zIndex='banner'
+        zIndex='docked'
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
@@ -89,14 +89,7 @@ export const Header = () => {
           </Box>
         )}
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
-          <HStack
-            width='full'
-            margin='0 auto'
-            maxW='container.3xl'
-            px={{ base: 0, md: 4 }}
-            spacing={0}
-            columnGap={4}
-          >
+          <HStack width='full' margin='0 auto' spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <IconButton
                 aria-label='Open menu'
@@ -105,11 +98,11 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
+            {/* <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
                 <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
               </Link>
-            </Flex>
+            </Flex> */}
             <HStack
               width='100%'
               flex={1}
@@ -118,15 +111,12 @@ export const Header = () => {
             >
               <AutoCompleteSearch />
             </HStack>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4}>
               <Box display={{ base: 'none', md: 'block' }}>
                 <FiatRamps />
               </Box>
               <Box display={{ base: 'none', md: 'block' }}>
                 <ChainMenu />
-              </Box>
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
               </Box>
             </Flex>
           </HStack>

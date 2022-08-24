@@ -9,9 +9,7 @@ type LayoutProps = ContainerProps
 export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
   return (
     <>
-      <Header />
-
-      <Flex maxWidth='container.3xl' margin='0 auto'>
+      <Flex margin='0 auto'>
         <SideNav />
         <Container
           as='main'
@@ -24,6 +22,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
           flex='1 1 0%'
           {...rest}
         >
+          <Header />
           {children}
         </Container>
       </Flex>
