@@ -57,6 +57,7 @@ type WalletButtonProps = {
   isDemoWallet: boolean
   isLoadingLocalWallet: boolean
   onConnect: () => void
+  isCompact?: boolean
 } & Pick<InitialState, 'walletInfo'> &
   MenuButtonProps
 
@@ -66,6 +67,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   walletInfo,
   onConnect,
   isLoadingLocalWallet,
+  isCompact,
   ...rest
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
@@ -73,7 +75,6 @@ const WalletButton: FC<WalletButtonProps> = ({
   const color = useColorModeValue('black', 'white')
 
   useEffect(() => {
-    console.info(walletInfo)
     ;(async () => {
       setWalletLabel('')
       setShouldShorten(true)
@@ -106,10 +107,16 @@ const WalletButton: FC<WalletButtonProps> = ({
       py={2}
       variant='ghost'
       color={color}
-      iconSpacing={4}
+      iconSpacing={{ base: isCompact ? 0 : 4, '2xl': 4 }}
       pl={2}
+      pr={{ base: isCompact ? 2 : 4, '2xl': 4 }}
       justifyContent='flex-start'
-      rightIcon={<ChevronDownIcon ml='auto' />}
+      rightIcon={
+        <ChevronDownIcon
+          ml='auto'
+          display={{ base: isCompact ? 'none' : 'inline-flex ', '2xl': 'inline-flex' }}
+        />
+      }
       leftIcon={
         <WalletImage
           walletInfo={walletInfo}
@@ -119,10 +126,12 @@ const WalletButton: FC<WalletButtonProps> = ({
       }
       {...rest}
     >
-      <Stack spacing={0} justifyContent='flex-start' alignItems='flex-start'>
-        <RawText fontSize='xs' color='gray.500' lineHeight='short'>
-          Ethereum
-        </RawText>
+      <Stack
+        spacing={0}
+        justifyContent='flex-start'
+        alignItems='flex-start'
+        display={{ base: isCompact ? 'none' : 'flex', '2xl': 'flex' }}
+      >
         {walletLabel ? (
           <MiddleEllipsis rounded='lg' shouldShorten={shouldShorten} value={walletLabel} />
         ) : (
@@ -137,7 +146,10 @@ const WalletButton: FC<WalletButtonProps> = ({
   )
 }
 
-export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
+export const UserMenu: React.FC<{ onClick?: () => void; isCompact?: boolean }> = ({
+  onClick,
+  isCompact,
+}) => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, isDemoWallet, walletInfo, type, isLocked } = state
 
@@ -147,10 +159,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
-
-  useEffect(() => {
-    console.info('state changed')
-  }, [state])
 
   return (
     <ButtonGroup isAttached width='full'>
@@ -163,6 +171,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           isDemoWallet={isDemoWallet}
           isLoadingLocalWallet={state.isLoadingLocalWallet}
           data-test='navigation-wallet-dropdown-button'
+          isCompact={isCompact}
         />
         <MenuList
           maxWidth={{ base: 'full', md: 'xs' }}

@@ -49,7 +49,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   }
 
   return (
-    <Box position='relative' maxWidth='xl'>
+    <Box position='relative' maxWidth='xl' width='full'>
       <Box
         as='form'
         width='full'

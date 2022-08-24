@@ -11,8 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import { Link, useHistory } from 'react-router-dom'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -20,7 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { FiatRamps } from './NavBar/FiatRamps'
-import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
@@ -103,22 +101,21 @@ export const Header = () => {
                 <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
               </Link>
             </Flex> */}
-            <HStack
-              width='100%'
-              flex={1}
-              justifyContent='center'
-              display={{ base: 'none', md: 'block' }}
-            >
-              <AutoCompleteSearch />
-            </HStack>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4}>
+
+            <Flex justifyContent='flex-start' flex={1} gap={4}>
               <Box display={{ base: 'none', md: 'block' }}>
                 <FiatRamps />
               </Box>
-              <Box display={{ base: 'none', md: 'block' }}>
-                <ChainMenu />
-              </Box>
             </Flex>
+            <HStack
+              width='100%'
+              flex={1}
+              justifyContent='flex-end'
+              alignItems='flex-end'
+              display={{ base: 'none', md: 'flex' }}
+            >
+              <AutoCompleteSearch />
+            </HStack>
           </HStack>
         </HStack>
       </Flex>

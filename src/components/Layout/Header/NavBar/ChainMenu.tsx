@@ -75,8 +75,10 @@ export const ChainMenu = () => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
+        variant='ghost'
+        size='sm'
         rightIcon={supportedEvmChainIds.length > 1 ? <ChevronDownIcon /> : null}
-        width={{ base: 'full', md: 'auto' }}
+        width='full'
       >
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
