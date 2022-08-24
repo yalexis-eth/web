@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
+import { YatBanner } from 'components/Banners/YatBanner'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 

@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { YatBanner } from 'components/Banners/YatBanner'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -90,6 +91,7 @@ export const Address = () => {
             }}
           />
         </FormControl>
+        {isYatFeatureEnabled && <YatBanner mt={6} />}
       </ModalBody>
       <ModalFooter>
         <Stack flex={1}>
